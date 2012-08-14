@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <title>Dust Compiler PHP</title>
+        <script src="dust.js"></script>
+        <script src="parser.js"></script>
+        <script src="compiler.js"></script>
+        <script src="jquery.min.js"></script>
+    </head>
+    <body>
+    	<h2>PHP compiler for Dust templates</h2>
+        <label>Source Folder:</label>
+        <input type="text" id="srcFolder" value=""/><span style="color:#999;font-size:12px;">Ex: C:/dusttemplates</span>
+        <br/>
+        <br/>
+        <label>Dest Folder:</label>
+        <input type="text" id="destFolder" value=""/><span style="color:#999;font-size:12px;">Ex: C:/dusttemplates/compiled</span>
+        <br/>
+        <br/>
+        <input type="button" value="compile" id="compile"/>
+        <div id="compiledCont"></div>
+        <iframe src="" id="longpoll" style="display:none;"></iframe>
+        <div id="compiledList"></div>
+        <div id="compiledErrorList"></div>
+        <script>
+            var totalFilesCount = 1;
+            $(document).ready(function(){
+                $("#compile").click(function(e){
+                    $("#longpoll").attr("src", "longpoll.php?folder=" + $("#srcFolder").val() + "&dest=" + $("#destFolder").val());
+                    $("#compiledList").html("");
+                    $("#compiledErrorList").html("");
+                });
+                function compileCode(){
+                    $.ajax({
+                        type: "POST",
+                        url: "compile.php",
+                        data: {
+                            "filename": typedName,
+                            "compiledcontent": comId
+                        },
+                        success: function(data){
+                            if (data.isSuccess) {
+                                var compiled = dust.compile(data.content, data.filename);
+                            }
+                            else {
+                            
+                            }
+                        }
+                    });
+                }
+            });
+            function doCompile(data){
+                var filename = (data.filename.replace(".dust", ""));
+                $.ajax({
+                    type: "POST",
+                    url: "compiledcode.php",
+                    data: {
+                        "filename": data.filename,
+                        "filepath": data.filepath,
+                        "dest": $("#destFolder").val(),
+                        "src": $("#srcFolder").val(),
+                        "compiledcontent": dust.compile(data.contents, filename)
+                    },
+                    success: function(data){
+                        if (data.isSuccess) {
+                            $("#compiledList").append("<div>Compiled:<b>" + data.filename + "</b></div>");
+                        }
+                        else {
+                            $("#compiledErrorList").append("<div>Error:" + data.filename + "</div>");
+                        }
+                    },
+                    error: function(){
+                        $("#compiledErrorList").append("<div>Error:" + data.filename + "</div>");
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
