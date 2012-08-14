@@ -7,6 +7,8 @@ This is a simple compiler for compiling [DUST][1] templates before rendering to 
 Prerequisites
 --------------------------------
  1. PHP running on Apache server
+ 2. All dust templates should have ".dust" extension. Ex: **first.dust**
+
  
 Basic Usage
 -----------
